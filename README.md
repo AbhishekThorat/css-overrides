@@ -90,7 +90,13 @@ cp web-ext.config.example.ts web-ext.config.ts
 ```
 
 `web-ext.config.ts` is gitignored (the path is personal to your machine), so
-this never affects other contributors. `npm run dev` will now launch Brave.
+this never affects other contributors. `npm run dev` will now launch Brave and
+open a test page (`example.com`) where you can try the side panel.
+
+> If the launched tab ever shows a `localhost:3000` **404**, that's just WXT's
+> empty dev-server root — harmless. The extension is loaded regardless; open any
+> normal website and click the toolbar icon. Setting `startUrls` (as the
+> template does) avoids landing there.
 
 **Or build and load it manually:**
 

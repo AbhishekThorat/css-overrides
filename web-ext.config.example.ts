@@ -20,4 +20,7 @@ export default {
     // chrome: '/Applications/Chromium.app/Contents/MacOS/Chromium',
     // chrome: '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
   },
+  // Open a real website on launch instead of the dev server's empty root
+  // (which shows a harmless 404), so the side panel has a page to style.
+  startUrls: ['https://example.com'],
 };
