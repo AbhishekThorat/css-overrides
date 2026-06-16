@@ -28,3 +28,6 @@ blob-report/
 .env
 .env.*
 !.env.example
+
+# Local dev browser override (personal binary paths)
+web-ext.config.ts

@@ -20,7 +20,6 @@
   "scripts": {
     "dev": "wxt",
     "icons": "node scripts/generate-icons.mjs",
-    "dev:brave": "wxt -b chrome --chromium-binary \"/Applications/Brave Browser.app/Contents/MacOS/Brave Browser\"",
     "build": "wxt build",
     "zip": "wxt zip",
     "postinstall": "wxt prepare",

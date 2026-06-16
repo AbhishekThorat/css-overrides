@@ -76,9 +76,21 @@ npm install
 **Develop with hot reload:**
 
 ```bash
-npm run dev          # launches Chrome with the extension loaded (HMR)
-npm run dev:brave    # same, using your installed Brave
+npm run dev          # launches your browser with the extension loaded (HMR)
 ```
+
+By default this looks for Google Chrome. **If you only have Brave** (or another
+Chromium browser), point WXT at it once — copy the template and it's picked up
+automatically:
+
+```bash
+cp web-ext.config.example.ts web-ext.config.ts
+# edit web-ext.config.ts and set the binary path for your OS, e.g. macOS Brave:
+#   /Applications/Brave Browser.app/Contents/MacOS/Brave Browser
+```
+
+`web-ext.config.ts` is gitignored (the path is personal to your machine), so
+this never affects other contributors. `npm run dev` will now launch Brave.
 
 **Or build and load it manually:**
 
