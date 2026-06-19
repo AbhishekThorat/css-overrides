@@ -15,10 +15,23 @@ import {
 } from '@/src/lib/storage';
 
 export default defineBackground(() => {
-  // Clicking the toolbar icon opens the side panel (the editor surface).
-  chrome.sidePanel
-    ?.setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((err) => console.error('[stylewright] setPanelBehavior failed', err));
+  // Open the panel from our OWN action.onClicked handler rather than via
+  // `openPanelOnActionClick`. The latter consumes the click and never fires
+  // `onClicked`, so the `activeTab` grant — which is what lets the panel read the
+  // tab URL and inject without a broad permission — never happens. Handling the
+  // click ourselves both grants activeTab for the invoked tab AND opens the
+  // panel. See ADR 0003.
+  chrome.action.onClicked.addListener((tab) => {
+    if (tab.windowId != null) {
+      chrome.sidePanel
+        .open({ windowId: tab.windowId })
+        .catch((err) => console.error('[stylewright] sidePanel.open failed', err));
+    }
+    // The click just granted activeTab for this tab, but no tab/focus event
+    // fires, so an already-open panel won't know. Nudge it to re-read context.
+    // (No panel open yet → no receiver → ignore; its own init refresh covers it.)
+    chrome.runtime.sendMessage({ type: 'panelRefresh' }).catch(() => {});
+  });
 
   chrome.runtime.onMessage.addListener((message: Request, _sender, sendResponse) => {
     handle(message)
@@ -172,6 +185,9 @@ async function buildContext(tabId: number | null): Promise<TabContext> {
   const tab = tabId != null ? await getTab(tabId) : await getActiveTab();
   const url = tab?.url ?? null;
   const injectable = isInjectableUrl(url);
+  // A live tab whose URL we can't see means "not yet activated" (no activeTab
+  // grant), not "unstyleable" — the panel prompts the user to click the icon.
+  const needsActivation = tab?.id != null && url == null;
   const meta = await getMeta();
   const entry = injectable && url ? await getEntryForUrl(url) : null;
 
@@ -188,6 +204,7 @@ async function buildContext(tabId: number | null): Promise<TabContext> {
     url,
     host: injectable && url ? hostKeyFromUrl(url) : null,
     injectable,
+    needsActivation,
     entry,
     applied,
     globallyDisabled: meta.globallyDisabled,

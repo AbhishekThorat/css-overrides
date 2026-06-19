@@ -14,6 +14,13 @@ export interface TabContext {
   /** Normalized host key, or null when the page cannot be styled. */
   host: string | null;
   injectable: boolean;
+  /**
+   * We have a live tab but Chrome won't reveal its URL yet (no `activeTab`
+   * grant), so we can't tell if it's styleable. The user must click the toolbar
+   * icon to grant access. Distinct from `injectable: false` on a known-internal
+   * page (`chrome://`, the web store) that genuinely can't be styled.
+   */
+  needsActivation: boolean;
   /** The saved override for this site, if any. */
   entry: StyleEntry | null;
   /** Whether the override is currently injected in the live page. */
@@ -35,6 +42,19 @@ export type Request =
   | { type: 'import'; json: string; tabId: number | null };
 
 export type RequestType = Request['type'];
+
+/**
+ * Worker → panel push (fire-and-forget, no response). Sent when the toolbar icon
+ * is clicked so an already-open panel re-reads context after the activeTab grant.
+ */
+export type Notification = { type: 'panelRefresh' };
+
+/** Narrowing guard for the untyped `chrome.runtime.onMessage` payload. */
+export function isNotification(msg: unknown): msg is Notification {
+  return (
+    typeof msg === 'object' && msg !== null && (msg as { type?: unknown }).type === 'panelRefresh'
+  );
+}
 
 export interface ResultMap {
   getContext: TabContext;

@@ -8,7 +8,10 @@ export default defineConfig({
     // Chrome Web Store caps the manifest description at 132 chars.
     description:
       'Write per-site CSS to restyle any website. Injected only when you click Apply. 100% local — no account, no network, no tracking.',
-    // Minimal permissions: activeTab keeps us off the "all your data" warning.
+    // Minimal permissions: activeTab keeps us off every broad-access warning. The
+    // toolbar-icon click grants activeTab for that tab, which is how the panel
+    // reads the URL and injects — see ADR 0003 for why the panel is invocation-
+    // scoped rather than auto-following every tab.
     permissions: ['activeTab', 'scripting', 'storage', 'sidePanel', 'unlimitedStorage'],
     // Specific origins are requested on demand, one site at a time.
     optional_host_permissions: ['*://*/*'],

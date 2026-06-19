@@ -31,8 +31,13 @@ Do not break these without an explicit decision recorded in `docs/adr/`:
 5. **No `innerHTML`.** Render with `textContent`, `replaceChildren`, or the
    CodeMirror document API. Treat stored CSS as untrusted by default.
 6. **Minimal permissions.** `activeTab` + `scripting` + `storage` (+ `sidePanel`,
-   `unlimitedStorage`). No blanket `host_permissions`; request specific origins
-   on demand via `chrome.permissions.request`.
+   `unlimitedStorage`). No `tabs` and no blanket `host_permissions` — so no
+   broad-access install warning. The panel is **invocation-scoped**: clicking the
+   toolbar icon grants `activeTab` for that tab, which is how the panel reads the
+   URL and injects. Tabs the user hasn't invoked show a "click the icon" prompt,
+   not a styleable editor (see `docs/adr/0003-activetab-invocation-scoped-panel.md`).
+   Auto-apply still requests a specific persistent origin on demand via
+   `chrome.permissions.request`.
 
 ## Architecture (one paragraph)
 
