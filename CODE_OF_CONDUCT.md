@@ -44,7 +44,7 @@ moderation decisions when appropriate.
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the project maintainer at **abhishek.thorat18@gmail.com** or
 privately via
-[GitHub Security Advisories](https://github.com/abhishekthorat/css-overrides/security/advisories/new).
+[GitHub Security Advisories](https://github.com/abhishekthorat/stylewright/security/advisories/new).
 All complaints will be reviewed and investigated promptly and fairly. The
 maintainer is obligated to respect the privacy and security of the reporter of
 any incident.

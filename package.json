@@ -5,13 +5,13 @@
   "type": "module",
   "license": "MIT",
   "author": "Abhishek Thorat",
-  "homepage": "https://github.com/abhishekthorat/css-overrides",
+  "homepage": "https://github.com/abhishekthorat/stylewright",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abhishekthorat/css-overrides.git"
+    "url": "https://github.com/abhishekthorat/stylewright.git"
   },
   "bugs": {
-    "url": "https://github.com/abhishekthorat/css-overrides/issues"
+    "url": "https://github.com/abhishekthorat/stylewright/issues"
   },
   "keywords": ["chrome-extension", "brave", "css", "userstyles", "manifest-v3", "wxt"],
   "engines": {

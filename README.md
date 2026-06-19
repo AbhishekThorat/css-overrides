@@ -4,7 +4,7 @@
 
 **Stylewright — a clean, modern browser extension for writing per-site CSS overrides. 100% local.**
 
-[![CI](https://github.com/abhishekthorat/css-overrides/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekthorat/css-overrides/actions/workflows/ci.yml)
+[![CI](https://github.com/abhishekthorat/stylewright/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekthorat/stylewright/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-success.svg)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 
@@ -70,8 +70,8 @@ browser and CSS work, a few things are out of scope:
 ## Run it locally
 
 ```bash
-git clone https://github.com/abhishekthorat/css-overrides.git
-cd css-overrides
+git clone https://github.com/abhishekthorat/stylewright.git
+cd stylewright
 npm install
 ```
 

@@ -6,8 +6,8 @@ to get set up and the conventions we follow.
 ## Getting started
 
 ```bash
-git clone https://github.com/abhishekthorat/css-overrides.git
-cd css-overrides
+git clone https://github.com/abhishekthorat/stylewright.git
+cd stylewright
 npm install
 npm run dev      # Chrome/Brave with HMR
 ```

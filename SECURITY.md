@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability, please **do not open a public issue**.
 Instead, report it privately via
-[GitHub Security Advisories](https://github.com/abhishekthorat/css-overrides/security/advisories/new)
+[GitHub Security Advisories](https://github.com/abhishekthorat/stylewright/security/advisories/new)
 or by emailing the maintainer at **abhishek.thorat18@gmail.com**.
 
 We will acknowledge your report within 72 hours and aim to ship a fix promptly.
