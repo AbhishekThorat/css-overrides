@@ -1,6 +1,6 @@
 {
   "name": "stylewright",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stylewright — a clean, modern browser extension for writing per-site CSS overrides.",
   "type": "module",
   "license": "MIT",

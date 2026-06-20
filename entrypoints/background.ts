@@ -15,10 +15,20 @@ import {
 } from '@/src/lib/storage';
 
 export default defineBackground(() => {
-  // Clicking the toolbar icon opens the side panel (the editor surface).
-  chrome.sidePanel
-    ?.setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((err) => console.error('[stylewright] setPanelBehavior failed', err));
+  // Handle the click ourselves instead of `openPanelOnActionClick`: that helper
+  // consumes the click and never fires `onClicked`, so the `activeTab` grant —
+  // what lets the panel read the URL and inject — never happens. This both grants
+  // activeTab for the invoked tab and opens the panel.
+  chrome.action.onClicked.addListener((tab) => {
+    if (tab.windowId != null) {
+      chrome.sidePanel
+        .open({ windowId: tab.windowId })
+        .catch((err) => console.error('[stylewright] sidePanel.open failed', err));
+    }
+    // The click granted activeTab but fires no tab/focus event; nudge an
+    // already-open panel to re-read. No panel open yet → no receiver → ignore.
+    chrome.runtime.sendMessage({ type: 'panelRefresh' }).catch(() => {});
+  });
 
   chrome.runtime.onMessage.addListener((message: Request, _sender, sendResponse) => {
     handle(message)
@@ -27,9 +37,8 @@ export default defineBackground(() => {
     return true; // keep the message channel open for the async response
   });
 
-  // Auto-apply content-script registrations are derived state: rebuild them from
-  // storage + granted permissions on install and on each browser start, so they
-  // stay consistent after upgrades, imports, or externally-revoked permissions.
+  // Auto-apply registrations are derived state: rebuild from storage + granted
+  // permissions on install/start so they survive upgrades, imports, and revokes.
   chrome.runtime.onInstalled.addListener(() => void reconcileAutoApply());
   chrome.runtime.onStartup.addListener(() => void reconcileAutoApply());
 });
@@ -102,12 +111,10 @@ async function apply(tabId: number, css: string): Promise<Result<TabContext>> {
 }
 
 /**
- * Turn opt-in auto-apply on/off for the current site. Enabling requires a
- * persistent host permission (load-time injection has no user gesture, so
- * `activeTab` can't cover it) and registers a `document_start` content script
- * for the origin; we also inject immediately so it takes effect without a
- * reload. Disabling unregisters and revokes the origin grant when no other
- * auto-apply entry still needs it. See ADR 0002.
+ * Turn opt-in auto-apply on/off for the current site. Enabling needs a persistent
+ * host permission (load-time injection has no user gesture for `activeTab`) and
+ * registers a `document_start` script; disabling unregisters and revokes the
+ * origin grant once no other auto-apply entry needs it.
  */
 async function setAutoApply(tabId: number, autoApply: boolean): Promise<Result<TabContext>> {
   const tab = await getTab(tabId);
@@ -172,6 +179,9 @@ async function buildContext(tabId: number | null): Promise<TabContext> {
   const tab = tabId != null ? await getTab(tabId) : await getActiveTab();
   const url = tab?.url ?? null;
   const injectable = isInjectableUrl(url);
+  // A live tab whose URL we can't see means "not yet activated" (no activeTab
+  // grant), not "unstyleable" — the panel prompts the user to click the icon.
+  const needsActivation = tab?.id != null && url == null;
   const meta = await getMeta();
   const entry = injectable && url ? await getEntryForUrl(url) : null;
 
@@ -188,6 +198,7 @@ async function buildContext(tabId: number | null): Promise<TabContext> {
     url,
     host: injectable && url ? hostKeyFromUrl(url) : null,
     injectable,
+    needsActivation,
     entry,
     applied,
     globallyDisabled: meta.globallyDisabled,
@@ -237,10 +248,8 @@ async function tryExecute<Args extends unknown[], R>(
 }
 
 /**
- * Decide whether an injection failure is a missing-permission case (worth
- * prompting the user for this one origin) or a genuine error. We branch on the
- * actual grant via `permissions.contains` rather than parsing the (localized,
- * changeable) error text.
+ * Is an injection failure a missing-permission case (prompt for this one origin)
+ * or a genuine error? Branch on the actual grant, not the localized error text.
  */
 async function needsPermissionOrError(error: string, url: string): Promise<Result<TabContext>> {
   const pattern = originPattern(url);
@@ -262,7 +271,7 @@ function originPattern(url: string): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Auto-apply: per-origin content-script registration (ADR 0002)
+// Auto-apply: per-origin content-script registration
 // ---------------------------------------------------------------------------
 
 // WXT builds the runtime-registered content script to this path.

@@ -1,4 +1,4 @@
-import { send } from '@/src/lib/messages';
+import { isNotification, send } from '@/src/lib/messages';
 import type { TabContext } from '@/src/lib/messages';
 import { css as cssLang } from '@codemirror/lang-css';
 import { Compartment, EditorState } from '@codemirror/state';
@@ -107,7 +107,9 @@ function render(ctx: TabContext): void {
   el.overlay.hidden = ctx.injectable;
   el.overlayText.textContent = ctx.injectable
     ? ''
-    : 'This page can’t be styled. Open a regular website to add overrides.';
+    : ctx.needsActivation
+      ? 'Click the Stylewright icon in your toolbar to edit this site.'
+      : 'This page can’t be styled. Open a regular website to add overrides.';
 
   // Button states. Disable gates on intent (entry is enabled), NOT on the live
   // `applied` probe — after a reload the <style> is gone but the entry is still
@@ -388,5 +390,11 @@ chrome.tabs.onUpdated.addListener((_id, changeInfo, tab) => {
   if (tab.active && (changeInfo.status === 'complete' || changeInfo.url)) void refresh();
 });
 chrome.windows.onFocusChanged.addListener(() => void refresh());
+
+// The toolbar-icon click grants activeTab but fires no tab/focus event; the
+// worker pings us so we re-read context now that the URL is readable.
+chrome.runtime.onMessage.addListener((msg: unknown) => {
+  if (isNotification(msg)) void refresh();
+});
 
 void refresh();
